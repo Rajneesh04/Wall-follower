@@ -9,13 +9,19 @@
 #define MAX_TURN_SPEED 10
 #define CALIBRATION 3
 #define MAX_ALLIGN_ANGLE 5
+#define COLLISION_DISTANCE 10
 
+//sensor 1 pins
 const int trigPin1 = 10;
 const int echoPin1 = 11;
 
 //sensor 2 pins
 const int trigPin2 = 12;
 const int echoPin2 = 13;
+
+//sensor 3 pins : front sensor
+const int trigPin3 = 6;
+const int echoPin3 = 2
 
 //right motor pins
 const int in1R = 7;
@@ -142,6 +148,14 @@ void follow_wall(){
   
   }
 
+bool check_collision(){
+  int distance3 = sensor_output(trigPin3, echoPin3);
+  if(distance3<COLLISION_DISTANCE){
+    return true;
+  }else{
+    return false;
+  }
+}
 void setup() {
   Serial.begin(9600);
   pinMode(in1L,OUTPUT);
@@ -171,7 +185,18 @@ void loop() {
   Serial.println(distance2);
   Serial.print("region:");
   Serial.println(region);
-  if(region==0){
+  if(check_collision()){
+    //turn right
+    speedL = speedL + MAX_DIFFERNCE;
+    speedR = speedR - MAX_DIFFERNCE;
+    analogWrite(enL, speedL);
+    analogWrite(enR, speedR);
+    digitalWrite(in1L, HIGH);
+    digitalWrite(in2L, LOW);
+    digitalWrite(in1R, HIGH);
+    digitalWrite(in2R, LOW);
+  }else{
+    if(region==0){
     follow_wall();
     }
    else{
@@ -183,4 +208,6 @@ void loop() {
     
     }
 
+  }
+  
 }
